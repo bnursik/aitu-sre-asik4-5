@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Computer Shop</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Computer Shop</h1>
+        <p>Minimal microservices demo for computer peripherals</p>
+      </div>
+      <button id="checkHealthBtn">Check Health</button>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>Login</h2>
+        <div class="form-row">
+          <label>
+            Username
+            <input id="usernameInput" value="demo">
+          </label>
+          <label>
+            Password
+            <input id="passwordInput" type="password" value="demo">
+          </label>
+        </div>
+        <button id="loginBtn">Login</button>
+        <pre id="loginOutput">No login request yet.</pre>
+      </section>
+
+      <section class="panel">
+        <h2>User</h2>
+        <button id="loadUserBtn">Load User</button>
+        <pre id="userOutput">No user loaded yet.</pre>
+      </section>
+
+      <section class="panel wide">
+        <div class="section-header">
+          <h2>Products</h2>
+          <button id="loadProductsBtn">Load Products</button>
+        </div>
+        <div id="productsList" class="products"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <h2>Orders</h2>
+          <button id="loadOrdersBtn">Load Orders</button>
+        </div>
+        <pre id="ordersOutput">No orders loaded yet.</pre>
+      </section>
+
+      <section class="panel">
+        <h2>Payment</h2>
+        <button id="payBtn">Pay</button>
+        <pre id="paymentOutput">No payment request yet.</pre>
+      </section>
+
+      <section class="panel wide">
+        <h2>Health</h2>
+        <pre id="healthOutput">Click Check Health.</pre>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

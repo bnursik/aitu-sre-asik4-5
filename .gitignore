@@ -1,0 +1,52 @@
+# Local editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local Codex/session metadata
+.codex
+
+# Go build artifacts
+*.exe
+*.test
+*.out
+/api-gateway/api-gateway
+/auth-service/auth-service
+/user-service/user-service
+/product-service/product-service
+/order-service/order-service
+/payment-service/payment-service
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+
+# Environment and secret files
+.env
+.env.*
+!.env.example
+
+# Terraform local files
+**/.terraform/
+**/.terraform/*
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/*.tfstate
+**/*.tfstate.*
+**/terraform.tfvars
+**/*.auto.tfvars
+**/*.auto.tfvars.json
+**/crash.log
+**/crash.*.log
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json
+
+# Keep shared Terraform examples and provider lock files
+!**/terraform.tfvars.example
+!**/.terraform.lock.hcl

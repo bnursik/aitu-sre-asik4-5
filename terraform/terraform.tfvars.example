@@ -1,0 +1,8 @@
+project_name        = "computer-shop-microservices"
+location            = "North Europe"
+vm_size             = "Standard_D2s_v3"
+admin_username      = "azureuser"
+ssh_public_key_path = "~/.ssh/azure_rsa.pub"
+ssh_public_key      = ""
+allowed_ssh_cidr    = "YOUR_PUBLIC_IP/32"
+allowed_web_cidr    = "0.0.0.0/0"
