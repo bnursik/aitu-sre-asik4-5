@@ -26,11 +26,12 @@ func main() {
 	var err error
 	db, err = openDB()
 	if err != nil {
-		log.Printf("database connection failed on startup: %v", err)
-	} else if err := createTable(); err != nil {
-		log.Printf("table creation failed on startup: %v", err)
+		log.Fatalf("database connection failed on startup: %v", err)
 	}
 
+	if err := createTable(); err != nil {
+		log.Fatalf("table creation failed on startup: %v", err)
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", healthHandler)
 	mux.HandleFunc("/orders", ordersHandler)
@@ -43,11 +44,11 @@ func main() {
 }
 
 func openDB() (*sql.DB, error) {
-	host := env("DB_HOST", "postgres")
-	port := env("DB_PORT", "5432")
-	user := env("DB_USER", "shop")
-	password := env("DB_PASSWORD", "shop")
-	name := env("DB_NAME", "shop")
+	host := requiredEnv("DB_HOST")
+	port := requiredEnv("DB_PORT")
+	user := requiredEnv("DB_USER")
+	password := requiredEnv("DB_PASSWORD")
+	name := requiredEnv("DB_NAME")
 
 	conn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, name)
 	database, err := sql.Open("postgres", conn)
@@ -152,10 +153,10 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, o)
 }
 
-func env(key, fallback string) string {
+func requiredEnv(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
-		return fallback
+		log.Fatalf("configuration validation failed: missing required environment variable %s", key)
 	}
 	return value
 }

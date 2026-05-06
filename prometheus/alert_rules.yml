@@ -1,0 +1,20 @@
+groups:
+  - name: microservices-alerts
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service is down"
+          description: "Prometheus cannot scrape one of the services."
+
+      - alert: OrderServiceDown
+        expr: up{job="order-service"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Order Service is down"
+          description: "Order Service is unavailable. Order creation may fail."
