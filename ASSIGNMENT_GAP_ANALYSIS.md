@@ -41,7 +41,7 @@ From the PDF, the project should demonstrate:
 | Dockerfiles | Present | Each Go service and frontend has a Dockerfile. |
 | Docker Compose | Present | `docker-compose.yml` starts the app, database, Prometheus, and Grafana. |
 | Docker Swarm | Partial | README mentions `docker stack deploy`, but there is no Swarm-specific documentation or `deploy.replicas` configuration. |
-| Kubernetes | Missing | No Kubernetes manifests were found. |
+| Kubernetes | Present | `k8s/` contains local Kubernetes manifests for the app, database, Prometheus, Grafana, NodePort access, probes, resources, and HPA. |
 | Terraform | Present | `terraform/` provisions an Azure resource group, network, public IP, NSG, NIC, and Ubuntu VM. |
 | Ansible | Missing | No playbooks, inventory, or roles were found. |
 | Prometheus | Present | `prometheus/prometheus.yml` scrapes all Go services. |
@@ -116,17 +116,20 @@ The SLI/SLO document includes:
 
 ### 4. Add Kubernetes Manifests
 
-Create a `k8s/` directory with manifests for:
+Status: completed in `k8s/`. Deployment instructions are in `k8s/README.md`.
+
+The Kubernetes manifests include:
 
 - Namespace.
 - ConfigMaps for service URLs and database config.
 - Secret for PostgreSQL password.
 - Deployments for frontend, API gateway, all microservices, PostgreSQL, Prometheus, and Grafana.
 - Services for each component.
-- Optional Ingress for frontend/API access.
+- NodePort access for frontend, API gateway, Prometheus, and Grafana.
 - HorizontalPodAutoscaler for at least `api-gateway`, `order-service`, and `payment-service`.
+- Readiness/liveness probes and resource requests/limits.
 
-Minimum acceptable structure:
+Implemented structure:
 
 ```text
 k8s/
@@ -134,17 +137,12 @@ k8s/
   configmap.yaml
   secret.yaml
   postgres.yaml
-  api-gateway.yaml
-  auth-service.yaml
-  user-service.yaml
-  product-service.yaml
-  order-service.yaml
-  payment-service.yaml
-  notification-service.yaml
+  backend-services.yaml
   frontend.yaml
   prometheus.yaml
   grafana.yaml
   hpa.yaml
+  README.md
 ```
 
 ### 5. Strengthen Docker Swarm Evidence

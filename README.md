@@ -40,6 +40,8 @@ Use the API Gateway on `http://localhost:8080`:
 docker compose up --build
 ```
 
+Kubernetes manifests for a local Minikube/kind deployment are available in [`k8s/`](k8s/). See [`k8s/README.md`](k8s/README.md) for image loading, deployment, NodePort access, and cleanup commands.
+
 API Gateway:
 
 ```text
