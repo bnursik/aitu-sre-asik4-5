@@ -152,6 +152,8 @@ Application metrics exposed by every Go service:
 - `http_request_duration_seconds_sum`
 - `http_request_duration_seconds_count`
 
+SLI/SLO definitions and PromQL queries are documented in [`docs/sli-slo.md`](docs/sli-slo.md).
+
 Example PromQL:
 
 ```promql

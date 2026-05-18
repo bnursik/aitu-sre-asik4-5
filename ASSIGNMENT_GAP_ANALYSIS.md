@@ -47,7 +47,7 @@ From the PDF, the project should demonstrate:
 | Prometheus | Present | `prometheus/prometheus.yml` scrapes all Go services. |
 | Grafana | Present | Dashboard and datasource provisioning exist. |
 | Alerts | Partial | Prometheus alert rules exist for service down and order-service down. |
-| SLI/SLO docs | Missing | No explicit SLI/SLO document was found. |
+| SLI/SLO docs | Present | `docs/sli-slo.md` defines SLIs, SLO targets, PromQL queries, measurement windows, and alerting guidance. |
 | Application metrics | Present | All Go services expose request count and latency metrics with `service`, `method`, `path`, and `status` labels where applicable. |
 | Health checks | Present | Compose health checks and service `/health` endpoints exist. |
 | Restart policies | Present | Compose uses `restart: unless-stopped`. |
@@ -102,7 +102,9 @@ Prometheus queries for SLI/SLO evidence:
 
 ### 3. Create SLI/SLO Documentation
 
-Add a document such as `docs/sli-slo.md` with:
+Status: completed in `docs/sli-slo.md`.
+
+The SLI/SLO document includes:
 
 - Availability SLO: at least 99%.
 - Latency SLO: p95 less than or equal to 200 ms.
@@ -110,7 +112,7 @@ Add a document such as `docs/sli-slo.md` with:
 - Request success rate target.
 - Measurement source: Prometheus.
 - Exact PromQL queries.
-- Burn-rate or alerting explanation if you want stronger SRE evidence.
+- Burn-rate and alerting guidance for stronger SRE evidence.
 
 ### 4. Add Kubernetes Manifests
 
