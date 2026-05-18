@@ -3,6 +3,7 @@ const userOutput = document.getElementById("userOutput");
 const productsList = document.getElementById("productsList");
 const ordersOutput = document.getElementById("ordersOutput");
 const paymentOutput = document.getElementById("paymentOutput");
+const notificationOutput = document.getElementById("notificationOutput");
 const healthOutput = document.getElementById("healthOutput");
 
 document.getElementById("loginBtn").addEventListener("click", login);
@@ -10,6 +11,7 @@ document.getElementById("loadUserBtn").addEventListener("click", loadUser);
 document.getElementById("loadProductsBtn").addEventListener("click", loadProducts);
 document.getElementById("loadOrdersBtn").addEventListener("click", loadOrders);
 document.getElementById("payBtn").addEventListener("click", pay);
+document.getElementById("notifyBtn").addEventListener("click", notify);
 document.getElementById("checkHealthBtn").addEventListener("click", checkHealth);
 
 loadProducts();
@@ -83,6 +85,11 @@ async function loadOrders() {
 async function pay() {
   const data = await request("/api/payments", { method: "POST" });
   show(paymentOutput, data);
+}
+
+async function notify() {
+  const data = await request("/api/notifications", { method: "POST" });
+  show(notificationOutput, data);
 }
 
 async function checkHealth() {

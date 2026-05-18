@@ -11,6 +11,7 @@ Minimal REST-based online shop for computer peripherals. The project is intentio
 - `product-service`: hardcoded computer peripherals
 - `order-service`: stores orders in PostgreSQL
 - `payment-service`: fake payment response
+- `notification-service`: fake email notification response
 - `postgres`: database used only by order-service
 - `prometheus`: metrics scraping
 - `grafana`: dashboard visualization for Prometheus metrics
@@ -31,6 +32,7 @@ Use the API Gateway on `http://localhost:8080`:
 - `POST /api/orders`
 - `GET /api/orders`
 - `POST /api/payments`
+- `POST /api/notifications`
 
 ## Run
 
@@ -131,6 +133,12 @@ Payments:
 curl -X POST http://localhost:8080/api/payments
 ```
 
+Notifications:
+
+```bash
+curl -X POST http://localhost:8080/api/notifications
+```
+
 Metrics:
 
 ```bash
@@ -159,6 +167,7 @@ Use the page buttons to:
 - create an order
 - list orders
 - make a fake payment
+- send a fake notification
 - check frontend and gateway health
 
 ## Incident Simulation

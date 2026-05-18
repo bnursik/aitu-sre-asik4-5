@@ -24,6 +24,7 @@ func main() {
 		{prefix: "/api/products", servicePath: "/products", target: "http://product-service:8080"},
 		{prefix: "/api/orders", servicePath: "/orders", target: "http://order-service:8080"},
 		{prefix: "/api/payments", servicePath: "/payments", target: "http://payment-service:8080"},
+		{prefix: "/api/notifications", servicePath: "/notifications", target: "http://notification-service:8080"},
 	}
 
 	mux := http.NewServeMux()
