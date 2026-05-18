@@ -145,6 +145,22 @@ Metrics:
 curl http://localhost:8080/metrics
 ```
 
+Application metrics exposed by every Go service:
+
+- `http_requests_total{service,method,path,status}`
+- `http_request_duration_seconds_bucket{service,method,path}`
+- `http_request_duration_seconds_sum`
+- `http_request_duration_seconds_count`
+
+Example PromQL:
+
+```promql
+sum(rate(http_requests_total[5m])) by (service)
+histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))
+sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
+sum(rate(http_requests_total{status!~"5.."}[5m])) / sum(rate(http_requests_total[5m]))
+```
+
 Grafana health:
 
 ```bash

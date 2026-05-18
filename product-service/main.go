@@ -8,13 +8,38 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+const serviceName = "product-service"
 
 type product struct {
 	ID    int     `json:"id"`
 	Name  string  `json:"name"`
 	Price float64 `json:"price"`
+}
+
+var (
+	requestsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests.",
+		},
+		[]string{"service", "method", "path", "status"},
+	)
+	requestDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "http_request_duration_seconds",
+			Help:    "HTTP request duration in seconds.",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"service", "method", "path"},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(requestsTotal, requestDuration)
 }
 
 var products = []product{
@@ -36,6 +61,27 @@ func main() {
 	if err := http.ListenAndServe(":8080", logRequests(mux)); err != nil {
 		log.Fatal(err)
 	}
+}
+
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (r *statusRecorder) WriteHeader(status int) {
+	r.status = status
+	r.ResponseWriter.WriteHeader(status)
+}
+
+func (r *statusRecorder) Write(data []byte) (int, error) {
+	if r.status == 0 {
+		r.status = http.StatusOK
+	}
+	return r.ResponseWriter.Write(data)
+}
+
+func (r *statusRecorder) Unwrap() http.ResponseWriter {
+	return r.ResponseWriter
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +128,34 @@ func writeJSON(w http.ResponseWriter, status int, value any) {
 func logRequests(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		next.ServeHTTP(w, r)
-		log.Printf("%s %s %s", r.Method, r.URL.Path, time.Since(start))
+		recorder := &statusRecorder{ResponseWriter: w}
+		next.ServeHTTP(recorder, r)
+
+		duration := time.Since(start)
+		status := recorder.status
+		if status == 0 {
+			status = http.StatusOK
+		}
+		log.Printf("%s %s %s", r.Method, r.URL.Path, duration)
+
+		if r.URL.Path == "/metrics" {
+			return
+		}
+		path := routeLabel(r.URL.Path)
+		requestsTotal.WithLabelValues(serviceName, r.Method, path, strconv.Itoa(status)).Inc()
+		requestDuration.WithLabelValues(serviceName, r.Method, path).Observe(duration.Seconds())
 	})
+}
+
+func routeLabel(path string) string {
+	switch {
+	case path == "/health":
+		return "/health"
+	case path == "/products":
+		return "/products"
+	case strings.HasPrefix(path, "/products/"):
+		return "/products/{id}"
+	default:
+		return "unknown"
+	}
 }

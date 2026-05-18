@@ -48,7 +48,7 @@ From the PDF, the project should demonstrate:
 | Grafana | Present | Dashboard and datasource provisioning exist. |
 | Alerts | Partial | Prometheus alert rules exist for service down and order-service down. |
 | SLI/SLO docs | Missing | No explicit SLI/SLO document was found. |
-| Application metrics | Partial | `/metrics` exists, but services mainly expose default Go/process metrics. Request latency, request count, status code, and error-rate metrics are not implemented. |
+| Application metrics | Present | All Go services expose request count and latency metrics with `service`, `method`, `path`, and `status` labels where applicable. |
 | Health checks | Present | Compose health checks and service `/health` endpoints exist. |
 | Restart policies | Present | Compose uses `restart: unless-stopped`. |
 | Incident simulation | Partial | README documents a bad `DB_HOST` simulation and there is a log-check script, but no formal incident report or postmortem. |
@@ -84,16 +84,16 @@ The added service provides:
 
 ### 2. Add Real Request Metrics
 
-The SLOs require latency, error rate, and request success rate. Default Go metrics are not enough to prove those directly.
+Status: completed across the API gateway and all backend services.
 
-Add middleware metrics to each Go service or at least to the API gateway:
+The services expose middleware metrics for latency, error rate, request rate, and request success rate:
 
 - `http_requests_total{service,method,path,status}`
 - `http_request_duration_seconds_bucket{service,method,path}`
 - `http_request_duration_seconds_sum`
 - `http_request_duration_seconds_count`
 
-Then define Prometheus queries for:
+Prometheus queries for SLI/SLO evidence:
 
 - Availability: `avg_over_time(up[5m])`
 - Latency p95: `histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))`
