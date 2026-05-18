@@ -1,0 +1,199 @@
+---
+- name: Require repository URL
+  ansible.builtin.assert:
+    that:
+      - ansible_repo_url is defined
+      - ansible_repo_url | default('') | length > 0
+      - "'<your-user>' not in (ansible_repo_url | default(''))"
+      - "'<your-repo>' not in (ansible_repo_url | default(''))"
+    fail_msg: "Set ansible_repo_url in inventory.ini before running the playbook."
+
+- name: Create application directory
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0755"
+
+- name: Clone or update repository
+  ansible.builtin.git:
+    repo: "{{ ansible_repo_url }}"
+    dest: "{{ app_dir }}"
+    version: "{{ ansible_repo_version | default('main') }}"
+    update: true
+    force: true
+  become_user: "{{ deploy_user }}"
+
+- name: Write VM Compose file
+  ansible.builtin.copy:
+    dest: "{{ app_dir }}/docker-compose.vm.yml"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0644"
+    content: |
+      services:
+        frontend:
+          build: ./frontend
+          restart: unless-stopped
+          ports:
+            - "80:80"
+          depends_on:
+            - api-gateway
+          healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        api-gateway:
+          build: ./api-gateway
+          restart: unless-stopped
+          depends_on:
+            - auth-service
+            - user-service
+            - product-service
+            - order-service
+            - payment-service
+            - notification-service
+          healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        auth-service:
+          build: ./auth-service
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        user-service:
+          build: ./user-service
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        product-service:
+          build: ./product-service
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        order-service:
+          build: ./order-service
+          restart: unless-stopped
+          environment:
+            DB_HOST: postgres
+            DB_PORT: "5432"
+            DB_USER: shop
+            DB_PASSWORD: shop
+            DB_NAME: shop
+          depends_on:
+            - postgres
+          healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        payment-service:
+          build: ./payment-service
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        notification-service:
+          build: ./notification-service
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        postgres:
+          image: postgres:16-alpine
+          restart: unless-stopped
+          environment:
+            POSTGRES_USER: shop
+            POSTGRES_PASSWORD: shop
+            POSTGRES_DB: shop
+          volumes:
+            - postgres-data:/var/lib/postgresql/data
+          healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U shop -d shop"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        prometheus:
+          image: prom/prometheus:v2.53.0
+          restart: unless-stopped
+          ports:
+            - "9090:9090"
+          volumes:
+            - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+            - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+          depends_on:
+            - api-gateway
+            - auth-service
+            - user-service
+            - product-service
+            - order-service
+            - payment-service
+            - notification-service
+          healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        grafana:
+          image: grafana/grafana:11.1.0
+          restart: unless-stopped
+          ports:
+            - "3000:3000"
+          environment:
+            GF_SECURITY_ADMIN_USER: admin
+            GF_SECURITY_ADMIN_PASSWORD: admin
+            GF_USERS_ALLOW_SIGN_UP: "false"
+          volumes:
+            - grafana-data:/var/lib/grafana
+            - ./grafana/provisioning:/etc/grafana/provisioning:ro
+            - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+          depends_on:
+            - prometheus
+          healthcheck:
+            test:
+              ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+      volumes:
+        postgres-data:
+        grafana-data:
+
+- name: Deploy application with Docker Compose
+  ansible.builtin.command:
+    cmd: docker compose -f docker-compose.vm.yml up -d --build
+    chdir: "{{ app_dir }}"
+  register: compose_deploy
+  changed_when: "'Started' in compose_deploy.stderr or 'Recreated' in compose_deploy.stderr or 'Created' in compose_deploy.stderr or 'Built' in compose_deploy.stderr or 'Building' in compose_deploy.stderr"
+
+- name: Show Compose deployment output
+  ansible.builtin.debug:
+    var: compose_deploy.stderr_lines

@@ -43,7 +43,7 @@ From the PDF, the project should demonstrate:
 | Docker Swarm | Present | `docker-stack.yml` defines Swarm replicas, resource limits, restart policies, update config, and monitoring components. `docs/docker-swarm.md` documents deployment and evidence commands. |
 | Kubernetes | Present | `k8s/` contains local Kubernetes manifests for the app, database, Prometheus, Grafana, NodePort access, probes, resources, and HPA. |
 | Terraform | Present | `terraform/` provisions an Azure resource group, network, public IP, NSG, NIC, and Ubuntu VM. |
-| Ansible | Missing | No playbooks, inventory, or roles were found. |
+| Ansible | Present | `ansible/` contains an inventory example, deployment playbook, roles for Docker setup, Compose deployment, and health verification. |
 | Prometheus | Present | `prometheus/prometheus.yml` scrapes all Go services. |
 | Grafana | Present | Dashboard and datasource provisioning exist. |
 | Alerts | Partial | Prometheus alert rules exist for service down and order-service down. |
@@ -166,28 +166,28 @@ Baseline replicas:
 
 ### 6. Add Ansible Automation
 
-Create an `ansible/` directory with:
+Status: completed in `ansible/`.
+
+The Ansible workflow includes:
 
 ```text
 ansible/
+  README.md
   inventory.ini.example
   playbook.yml
   roles/
-    docker/
-    deploy/
-    monitoring/
+    docker/tasks/main.yml
+    deploy/tasks/main.yml
+    monitoring/tasks/main.yml
 ```
-
-Minimum tasks:
 
 - Install Docker and Docker Compose plugin.
 - Install Git.
 - Clone or update the repository on the VM.
-- Start the app with Docker Compose or Docker Swarm.
-- Optionally install Kubernetes tools if demonstrating Kubernetes on the VM.
+- Start the app with Docker Compose using VM ports that match Terraform outputs.
 - Verify health endpoints after deployment.
 
-This closes the current gap where Terraform creates the VM but setup and deployment are manual.
+This closes the previous gap where Terraform created the VM but setup and deployment were manual.
 
 ### 7. Write Incident Report And Postmortem
 

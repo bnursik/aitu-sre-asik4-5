@@ -1,0 +1,6 @@
+[app]
+computer-shop-vm ansible_host=YOUR_VM_PUBLIC_IP ansible_user=azureuser
+
+[app:vars]
+ansible_repo_url=https://github.com/<your-user>/<your-repo>.git
+ansible_app_dir=/opt/computer-shop-microservices

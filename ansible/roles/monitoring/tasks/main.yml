@@ -1,0 +1,41 @@
+---
+- name: Wait for frontend health
+  ansible.builtin.uri:
+    url: http://127.0.0.1/health
+    method: GET
+    status_code: 200
+  register: frontend_health
+  retries: 30
+  delay: 5
+  until: frontend_health.status == 200
+
+- name: Wait for Prometheus health
+  ansible.builtin.uri:
+    url: http://127.0.0.1:9090/-/healthy
+    method: GET
+    status_code: 200
+  register: prometheus_health
+  retries: 30
+  delay: 5
+  until: prometheus_health.status == 200
+
+- name: Wait for Grafana health
+  ansible.builtin.uri:
+    url: http://127.0.0.1:3000/api/health
+    method: GET
+    status_code: 200
+  register: grafana_health
+  retries: 30
+  delay: 5
+  until: grafana_health.status == 200
+
+- name: List running Compose services
+  ansible.builtin.command:
+    cmd: docker compose -f docker-compose.vm.yml ps
+    chdir: "{{ app_dir }}"
+  register: compose_ps
+  changed_when: false
+
+- name: Show running Compose services
+  ansible.builtin.debug:
+    var: compose_ps.stdout_lines

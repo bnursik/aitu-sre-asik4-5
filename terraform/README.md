@@ -2,7 +2,7 @@
 
 This folder provisions the infrastructure required by the assignment using AzureRM.
 
-Terraform creates infrastructure only. It does not install Docker and does not deploy the application. Deployment is done manually over SSH after the VM is created.
+Terraform creates infrastructure only. Docker installation and application deployment are automated with the Ansible workflow in [`../ansible/`](../ansible/).
 
 ## What It Creates
 
@@ -86,36 +86,23 @@ Terraform outputs:
 - `prometheus_url`
 - `grafana_url`
 
-## Manual Deployment After VM Creation
+## Deploy With Ansible After VM Creation
 
-SSH into the VM:
-
-```bash
-ssh azureuser@<public_ip>
-```
-
-Install Docker and Git manually:
+Copy and edit the Ansible inventory:
 
 ```bash
-sudo apt update
-sudo apt install -y docker.io docker-compose-plugin git
-sudo usermod -aG docker azureuser
+cp ../ansible/inventory.ini.example ../ansible/inventory.ini
 ```
 
-Log out and log back in so the Docker group change applies.
+Set `ansible_host` to the Terraform `public_ip` output and set `ansible_repo_url` to your Git repository URL.
 
-Clone the project:
+Run the playbook:
 
 ```bash
-git clone <your-repo-url>
-cd <project-folder>
+ansible-playbook -i ../ansible/inventory.ini ../ansible/playbook.yml
 ```
 
-Start the application:
-
-```bash
-docker compose up -d --build
-```
+The playbook installs Docker, installs Git, clones or updates the repository, writes a VM Compose file with ports matching the Terraform outputs, starts the app with Docker Compose, and verifies the frontend, Prometheus, and Grafana health endpoints.
 
 Open:
 

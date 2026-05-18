@@ -29,6 +29,7 @@ temp/
 .env
 .env.*
 !.env.example
+ansible/inventory.ini
 
 # Terraform local files
 **/.terraform/

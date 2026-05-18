@@ -1,0 +1,11 @@
+---
+- name: Configure and deploy Computer Shop microservices
+  hosts: app
+  become: true
+  vars:
+    deploy_user: "{{ ansible_user | default(ansible_user_id) }}"
+    app_dir: "{{ ansible_app_dir | default('/opt/computer-shop-microservices') }}"
+  roles:
+    - docker
+    - deploy
+    - monitoring

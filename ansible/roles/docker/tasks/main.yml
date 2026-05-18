@@ -1,0 +1,22 @@
+---
+- name: Install Docker, Compose plugin, and Git
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose-plugin
+      - git
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Enable and start Docker
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Add deploy user to docker group
+  ansible.builtin.user:
+    name: "{{ deploy_user }}"
+    groups: docker
+    append: true
