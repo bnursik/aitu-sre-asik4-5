@@ -40,7 +40,7 @@ From the PDF, the project should demonstrate:
 | Database | Present | PostgreSQL is used by `order-service`. |
 | Dockerfiles | Present | Each Go service and frontend has a Dockerfile. |
 | Docker Compose | Present | `docker-compose.yml` starts the app, database, Prometheus, and Grafana. |
-| Docker Swarm | Partial | README mentions `docker stack deploy`, but there is no Swarm-specific documentation or `deploy.replicas` configuration. |
+| Docker Swarm | Present | `docker-stack.yml` defines Swarm replicas, resource limits, restart policies, update config, and monitoring components. `docs/docker-swarm.md` documents deployment and evidence commands. |
 | Kubernetes | Present | `k8s/` contains local Kubernetes manifests for the app, database, Prometheus, Grafana, NodePort access, probes, resources, and HPA. |
 | Terraform | Present | `terraform/` provisions an Azure resource group, network, public IP, NSG, NIC, and Ubuntu VM. |
 | Ansible | Missing | No playbooks, inventory, or roles were found. |
@@ -147,14 +147,16 @@ k8s/
 
 ### 5. Strengthen Docker Swarm Evidence
 
-The current Compose file can be a base, but the assignment asks for Swarm as a separate orchestration approach.
+Status: completed with `docker-stack.yml` and `docs/docker-swarm.md`.
 
-Add either:
+The Swarm setup includes:
 
-- A `docker-stack.yml` file with `deploy.replicas`, resource limits, update config, and restart policy.
-- Or a `docs/docker-swarm.md` guide showing `docker swarm init`, `docker stack deploy`, scaling commands, and screenshots.
+- `deploy.replicas`, resource limits, update config, and restart policy.
+- Prometheus and Grafana services.
+- Swarm deployment, scaling, rolling update, smoke test, and cleanup commands.
+- Evidence checklist for screenshots and final report output.
 
-Recommended replicas:
+Baseline replicas:
 
 - `api-gateway`: 2
 - `product-service`: 2

@@ -42,6 +42,8 @@ docker compose up --build
 
 Kubernetes manifests for a local Minikube/kind deployment are available in [`k8s/`](k8s/). See [`k8s/README.md`](k8s/README.md) for image loading, deployment, NodePort access, and cleanup commands.
 
+Docker Swarm deployment is available through [`docker-stack.yml`](docker-stack.yml). See [`docs/docker-swarm.md`](docs/docker-swarm.md) for stack deployment, scaling, rolling update, and evidence commands.
+
 API Gateway:
 
 ```text
